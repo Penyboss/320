@@ -7,6 +7,10 @@
 	user-select: none;
 }
 
+body {
+  overflow: hidden;
+}
+
 .sec {
 	position: relative;
 	display: flex;
