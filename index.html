@@ -1,60 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<script defer src="./face-api.min.js"></script>
-		<script defer src="./app.js"></script>
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<script defer src="./face-api.min.js"></script>
+	<script defer src="./app.js"></script>
 
-		<link rel="stylesheet" href="box/css/boxicons.css" />
-		<link rel="stylesheet" href="style.css" />
+	<link rel="stylesheet" href="box/css/boxicons.css" />
+	<link rel="stylesheet" href="style.css" />
 
-		<title>Face Recogntion System</title>
-	</head>
-	<body>
-		<section class="sec">
-			<div class="toggle">
-				<i class="bx bx-moon"></i>
-				<i class="bx bx-sun"></i>
+	<title>Face Recognition System</title>
+
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			font-family: Arial, sans-serif;
+			background-color: #f0f0f0;
+		}
+
+		.sec {
+			padding: 20px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			min-height: 100vh;
+		}
+
+		.toggle {
+			align-self: flex-end;
+			margin: 10px;
+			font-size: 24px;
+		}
+
+		.box {
+			background: #fff;
+			padding: 20px;
+			border-radius: 10px;
+			box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+			max-width: 600px;
+			width: 90%;
+			text-align: center;
+		}
+
+		.image-display {
+			position: relative;
+			width: 100%;
+			max-width: 450px;
+			aspect-ratio: 1;
+			border: 0.3rem solid #e91e625e;
+			margin: 20px auto;
+			border-radius: 10px;
+		}
+
+		canvas, img {
+			width: 100%;
+			height: 100%;
+			position: absolute;
+			top: 0;
+			left: 0;
+			object-fit: contain;
+		}
+
+		input[type="file"] {
+			margin-top: 10px;
+		}
+
+		.msg {
+			margin-top: 15px;
+			color: #333;
+		}
+
+		/* Responsive Text */
+		h2 {
+			font-size: 1.5rem;
+		}
+
+		@media (max-width: 600px) {
+			.toggle {
+				font-size: 20px;
+			}
+
+			h2 {
+				font-size: 1.3rem;
+			}
+		}
+	</style>
+</head>
+<body>
+	<section class="sec">
+		<div class="toggle">
+			<i class="bx bx-moon"></i>
+			<i class="bx bx-sun"></i>
+		</div>
+
+		<div class="box">
+			<h2>Smart Facial Recognition System</h2>
+			<div class="image-display"></div>
+			<input type="file" id="upload-img" />
+			<div class="msg">
+				<p>Loading Model......</p>
+				<p class="faces"></p>
 			</div>
+		</div>
+	</section>
 
-			<div class="box">
-				<h2>Smart Facial Recognition System</h2>
-				<center>
-					<div class="image-display"></div>
-					<input type="file" id="upload-img" />
-					<div class="msg">
-						<p>Loading Model......</p>
-						<p class="faces"></p>
-					</div>
-				</center>
-			</div>
-		</section>
-
-		<script src="main.js"></script>
-		<style>
-			.image-display {
-				position: relative;
-				width: 450px;
-				height: 450px;
-				border: 0.3rem solid #e91e625e;
-				margin-bottom: 20px;
-				border-radius: 10px;
-			}
-
-			canvas {
-				width: 100%;
-				height: 100%;
-				position: absolute;
-				top: 0%;
-				left: 0;
-			}
-
-			img {
-				width: 100%;
-				height: 100%;
-				object-fit: contain;
-			}
-		</style>
-	</body>
+	<script src="main.js"></script>
+</body>
 </html>
