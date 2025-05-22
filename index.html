@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -10,25 +10,34 @@
   <link rel="stylesheet" href="style.css" />
 
   <title>Face Recognition System</title>
+</head>
+<body>
+  <section class="sec">
+    <div class="toggle">
+      <i class="bx bx-moon"></i>
+      <i class="bx bx-sun"></i>
+    </div>
 
+    <div class="box">
+      <h2>Smart Facial Recognition System</h2>
+      <center>
+        <div class="image-display"></div>
+        <input 
+          type="file" 
+          id="upload-img" 
+          accept="image/jpg" 
+          capture="environment"
+        />
+        <div class="msg">
+          <p>Loading Model......</p>
+          <p class="faces"></p>
+        </div>
+      </center>
+    </div>
+  </section>
+
+  <script src="main.js"></script>
   <style>
-    html, body {
-      height: 100% !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      box-sizing: border-box !important;
-      display: flex !important;
-      justify-content: center !important;
-      align-items: center !important;
-      font-family: sans-serif !important;
-      background-color: #f9f9f9 !important;
-    }
-
-    body {
-      flex-direction: column !important;
-      text-align: center !important;
-    }
-
     .image-display {
       position: relative;
       width: 450px;
@@ -51,90 +60,6 @@
       height: 100%;
       object-fit: contain;
     }
-
-    #camera-stream, #capture-btn {
-      display: none;
-      margin: 10px 0;
-    }
   </style>
-</head>
-<body>
-  <section class="sec">
-    <div class="toggle">
-      <i class="bx bx-moon"></i>
-      <i class="bx bx-sun"></i>
-    </div>
-
-    <div class="box">
-      <h2>Smart Facial Recognition System</h2>
-      <center>
-        <div class="image-display" id="image-container"></div>
-        <input type="file" id="upload-img" />
-        <br />
-        <button onclick="startCamera()">Use Camera</button>
-        <video id="camera-stream" autoplay></video>
-        <button id="capture-btn" onclick="captureImage()">Capture Image</button>
-        <div class="msg">
-          <p>Loading Model......</p>
-          <p class="faces"></p>
-        </div>
-      </center>
-    </div>
-  </section>
-
-  <script>
-    const video = document.getElementById('camera-stream');
-    const captureBtn = document.getElementById('capture-btn');
-    const imageContainer = document.getElementById('image-container');
-    const uploadInput = document.getElementById('upload-img');
-
-    function startCamera() {
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => {
-          video.srcObject = stream;
-          video.style.display = 'block';
-          captureBtn.style.display = 'inline-block';
-        })
-        .catch(err => {
-          alert('Camera access denied or unavailable');
-          console.error(err);
-        });
-    }
-
-    function captureImage() {
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const context = canvas.getContext('2d');
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const dataUrl = canvas.toDataURL('image/jpeg');
-
-      // Display the captured image
-      imageContainer.innerHTML = `<img src="${dataUrl}" />`;
-
-      // Convert to blob and simulate file input change
-      fetch(dataUrl)
-        .then(res => res.blob())
-        .then(blob => {
-          const file = new File([blob], 'captured.jpg', { type: 'image/jpeg' });
-          const dataTransfer = new DataTransfer();
-          dataTransfer.items.add(file);
-          uploadInput.files = dataTransfer.files;
-
-          // Optional: trigger change event
-          uploadInput.dispatchEvent(new Event('change'));
-        });
-
-      // Stop camera
-      const stream = video.srcObject;
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-      video.style.display = 'none';
-      captureBtn.style.display = 'none';
-    }
-  </script>
-
-  <script src="main.js"></script>
 </body>
 </html>
