@@ -1,10 +1,9 @@
-<!DOCTYPE html>
+<!DOCTYPE html>  
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script defer src="./face-api.min.js"></script>
-  <script defer src="./app.js"></script>
 
   <link rel="stylesheet" href="box/css/boxicons.css" />
   <link rel="stylesheet" href="style.css" />
@@ -22,54 +21,71 @@
       <h2>Smart Facial Recognition System</h2>
       <center>
         <div class="image-display" id="image-display"></div>
-        <video id="video" autoplay playsinline></video>
-        <button id="capture-btn">Capture</button>
-        <canvas id="canvas" style="display:none;"></canvas>
-        <input type="file" id="upload-img" style="display:none;" />
+        <input 
+          type="file" 
+          id="upload-img" 
+          accept="image/jpg, image/jpeg" 
+          capture="environment"
+        />
         <div class="msg">
-          <p>Loading Model......</p>
-          <p class="faces"></p>
+          <p id="loading-text">Loading Model......</p>
+          <p class="faces" id="faces-count"></p>
         </div>
       </center>
     </div>
   </section>
 
   <script>
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const captureBtn = document.getElementById('capture-btn');
-    const imageDisplay = document.getElementById('image-display');
+    const uploadInput = document.getElementById("upload-img");
+    const imageDisplay = document.getElementById("image-display");
+    const facesCount = document.getElementById("faces-count");
+    const loadingText = document.getElementById("loading-text");
 
-    // Start front camera with reduced resolution
-    navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: { exact: "user" },
-        width: { ideal: 640 },
-        height: { ideal: 480 }
-      },
-      audio: false
-    }).then(stream => {
-      video.srcObject = stream;
-    }).catch(err => {
-      alert("Error accessing camera: " + err.message);
-      console.error("Camera access error:", err);
+    // Load only the tinyFaceDetector model (memory-friendly)
+    Promise.all([
+      faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
+    ]).then(() => {
+      loadingText.textContent = "Model Loaded. Upload an image.";
     });
 
-    captureBtn.addEventListener('click', () => {
-      const context = canvas.getContext('2d');
-      
-      // Smaller canvas size to reduce memory usage
-      const scale = 0.5; // 50% of original
-      canvas.width = video.videoWidth * scale;
-      canvas.height = video.videoHeight * scale;
+    uploadInput.addEventListener("change", async () => {
+      if (!uploadInput.files.length) return;
 
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const imageDataURL = canvas.toDataURL('image/jpeg', 0.9); // 90% quality
+      // Clear previous content
+      imageDisplay.innerHTML = '';
+      facesCount.textContent = '';
 
-      // Display captured image
-      imageDisplay.innerHTML = `<img src="${imageDataURL}" alt="Captured Image" />`;
+      const file = uploadInput.files[0];
+      const img = await faceapi.bufferToImage(file);
 
-      // Optionally pass imageDataURL to your model
+      // Resize image to 320x320 for lower memory usage
+      const canvasWrapper = document.createElement('div');
+      canvasWrapper.style.position = "relative";
+      canvasWrapper.style.width = "320px";
+      canvasWrapper.style.height = "320px";
+      canvasWrapper.style.overflow = "hidden";
+
+      img.style.width = "100%";
+      img.style.height = "100%";
+      img.style.objectFit = "contain";
+
+      canvasWrapper.appendChild(img);
+      imageDisplay.appendChild(canvasWrapper);
+
+      const displaySize = { width: 320, height: 320 };
+      const detections = await faceapi
+        .detectAllFaces(img, new faceapi.TinyFaceDetectorOptions())
+        .withFaceLandmarks()
+        .withFaceExpressions();
+
+      const canvas = faceapi.createCanvasFromMedia(img);
+      faceapi.matchDimensions(canvas, displaySize);
+
+      const resizedDetections = faceapi.resizeResults(detections, displaySize);
+      faceapi.draw.drawDetections(canvas, resizedDetections);
+
+      canvasWrapper.appendChild(canvas);
+      facesCount.textContent = `Faces Detected: ${resizedDetections.length}`;
     });
   </script>
 
@@ -81,28 +97,18 @@
       border: 0.3rem solid #e91e625e;
       margin-bottom: 20px;
       border-radius: 10px;
-      overflow: hidden;
     }
 
-    video {
-      width: 320px;
-      height: 240px;
-      border-radius: 10px;
-      object-fit: cover;
-      margin-bottom: 10px;
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
     }
 
     img {
       width: 100%;
       height: 100%;
       object-fit: contain;
-    }
-
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      margin-bottom: 15px;
-      cursor: pointer;
     }
   </style>
 </body>
