@@ -9,27 +9,51 @@
 		<link rel="stylesheet" href="box/css/boxicons.css" />
 		<link rel="stylesheet" href="style.css" />
 
-		<title>Face Recogntion System</title>
+		<title>Face Recognition System</title>
 
 		<style>
-  html, body {
-    height: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    box-sizing: border-box !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    font-family: sans-serif !important;
-    background-color: #f9f9f9 !important;
-  }
-
-  body {
-    flex-direction: column !important;
-    text-align: center !important;
-  }
-</style>
-
+			html, body {
+				height: 100% !important;
+				margin: 0 !important;
+				padding: 0 !important;
+				box-sizing: border-box !important;
+				display: flex !important;
+				justify-content: center !important;
+				align-items: center !important;
+				font-family: sans-serif !important;
+				background-color: #f9f9f9 !important;
+			}
+			body {
+				flex-direction: column !important;
+				text-align: center !important;
+			}
+			.image-display {
+				position: relative;
+				width: 450px;
+				height: 450px;
+				border: 0.3rem solid #e91e625e;
+				margin-bottom: 20px;
+				border-radius: 10px;
+			}
+			canvas {
+				width: 100%;
+				height: 100%;
+				position: absolute;
+				top: 0%;
+				left: 0;
+			}
+			img {
+				width: 100%;
+				height: 100%;
+				object-fit: contain;
+			}
+			video {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				border-radius: 10px;
+			}
+		</style>
 	</head>
 	<body>
 		<section class="sec">
@@ -41,7 +65,12 @@
 			<div class="box">
 				<h2>Smart Facial Recognition System</h2>
 				<center>
-					<div class="image-display"></div>
+					<div class="image-display" id="display">
+						<video id="video" autoplay playsinline></video>
+						<canvas id="canvas" hidden></canvas>
+					</div>
+					<button id="capture">Capture Image</button>
+					<br><br>
 					<input type="file" id="upload-img" />
 					<div class="msg">
 						<p>Loading Model......</p>
@@ -52,29 +81,31 @@
 		</section>
 
 		<script src="main.js"></script>
-		<style>
-			.image-display {
-				position: relative;
-				width: 450px;
-				height: 450px;
-				border: 0.3rem solid #e91e625e;
-				margin-bottom: 20px;
-				border-radius: 10px;
-			}
+		<script>
+			const video = document.getElementById('video');
+			const canvas = document.getElementById('canvas');
+			const context = canvas.getContext('2d');
+			const captureBtn = document.getElementById('capture');
 
-			canvas {
-				width: 100%;
-				height: 100%;
-				position: absolute;
-				top: 0%;
-				left: 0;
-			}
+			navigator.mediaDevices.getUserMedia({ video: true })
+				.then(stream => {
+					video.srcObject = stream;
+				})
+				.catch(err => {
+					console.error("Camera access denied:", err);
+				});
 
-			img {
-				width: 100%;
-				height: 100%;
-				object-fit: contain;
-			}
-		</style>
+			captureBtn.addEventListener('click', () => {
+				canvas.width = video.videoWidth;
+				canvas.height = video.videoHeight;
+				context.drawImage(video, 0, 0, canvas.width, canvas.height);
+				canvas.hidden = false;
+				video.style.display = 'none';
+
+				// Convert to JPG and do something with it
+				const dataURL = canvas.toDataURL('image/jpeg');
+				console.log(dataURL); // You can send this to your server or process it
+			});
+		</script>
 	</body>
 </html>
