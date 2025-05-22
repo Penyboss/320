@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script defer src="./face-api.min.js"></script>
   <script defer src="./app.js"></script>
 
@@ -10,41 +10,6 @@
   <link rel="stylesheet" href="style.css" />
 
   <title>Face Recognition System</title>
-  <style>
-    .image-display {
-      position: relative;
-      width: 450px;
-      height: 450px;
-      border: 0.3rem solid #e91e625e;
-      margin-bottom: 20px;
-      border-radius: 10px;
-      background: #000;
-      overflow: hidden;
-    }
-    video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    canvas {
-      display: none;
-    }
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-    button.capture-btn {
-      padding: 10px 20px;
-      font-size: 1rem;
-      margin-top: 10px;
-      cursor: pointer;
-      border-radius: 5px;
-      border: none;
-      background-color: #e91e62;
-      color: white;
-    }
-  </style>
 </head>
 <body>
   <section class="sec">
@@ -56,13 +21,11 @@
     <div class="box">
       <h2>Smart Facial Recognition System</h2>
       <center>
-        <div class="image-display">
-          <video id="video" autoplay playsinline></video>
-          <!-- The captured image will be shown here -->
-          <img id="captured-img" alt="Captured image" />
-        </div>
-        <button class="capture-btn" id="capture-btn">Capture</button>
-
+        <div class="image-display" id="image-display"></div>
+        <video id="video" autoplay playsinline></video>
+        <button id="capture-btn">Capture</button>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <input type="file" id="upload-img" style="display:none;" />
         <div class="msg">
           <p>Loading Model......</p>
           <p class="faces"></p>
@@ -71,48 +34,67 @@
     </div>
   </section>
 
-  <canvas id="canvas" width="450" height="450"></canvas>
-
   <script>
     const video = document.getElementById('video');
-    const captureBtn = document.getElementById('capture-btn');
     const canvas = document.getElementById('canvas');
-    const capturedImg = document.getElementById('captured-img');
-    const ctx = canvas.getContext('2d');
+    const captureBtn = document.getElementById('capture-btn');
+    const imageDisplay = document.getElementById('image-display');
 
-    // Request camera access and stream to video element
-    async function startCamera() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 450, height: 450, facingMode: 'environment' },
-          audio: false,
-        });
-        video.srcObject = stream;
-      } catch (err) {
-        alert('Could not access the camera. Please allow camera access.');
-        console.error(err);
-      }
-    }
-
-    // Capture current frame from video and show as JPG image
-    captureBtn.addEventListener('click', () => {
-      // Draw video frame to canvas
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      // Convert canvas to JPG data URL
-      const imgData = canvas.toDataURL('image/jpeg');
-      // Show captured image preview
-      capturedImg.src = imgData;
-      capturedImg.style.display = 'block';
-      // Optionally hide video after capture
-      video.style.display = 'none';
-
-      // Here you can also trigger any further processing on imgData (the JPG image)
-      // e.g., send to face-api, upload, etc.
+    // Start front camera
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user" },
+      audio: false
+    }).then(stream => {
+      video.srcObject = stream;
+    }).catch(err => {
+      console.error("Camera access error:", err);
     });
 
-    startCamera();
+    captureBtn.addEventListener('click', () => {
+      const context = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Convert to JPG and display
+      const imageDataURL = canvas.toDataURL('image/jpeg');
+      imageDisplay.innerHTML = `<img src="${imageDataURL}" alt="Captured Image" />`;
+
+      // If needed: trigger model or simulate upload using imageDataURL
+    });
   </script>
 
-  <script src="main.js"></script>
+  <style>
+    .image-display {
+      position: relative;
+      width: 450px;
+      height: 450px;
+      border: 0.3rem solid #e91e625e;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    video {
+      width: 450px;
+      height: 450px;
+      border-radius: 10px;
+      object-fit: cover;
+      margin-bottom: 10px;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-bottom: 15px;
+      cursor: pointer;
+    }
+  </style>
 </body>
 </html>
