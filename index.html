@@ -1,9 +1,10 @@
-<!DOCTYPE html>  
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script defer src="./face-api.min.js"></script>
+  <script defer src="./app.js"></script>
 
   <link rel="stylesheet" href="box/css/boxicons.css" />
   <link rel="stylesheet" href="style.css" />
@@ -20,88 +21,37 @@
     <div class="box">
       <h2>Smart Facial Recognition System</h2>
       <center>
-        <div class="image-display" id="image-display"></div>
+        <div class="image-display"></div>
         <input 
           type="file" 
           id="upload-img" 
-          accept="image/jpg, image/jpeg" 
+          accept="image/jpg" 
           capture="environment"
         />
         <div class="msg">
-          <p id="loading-text">Loading Model......</p>
-          <p class="faces" id="faces-count"></p>
+          <p>Loading Model......</p>
+          <p class="faces"></p>
         </div>
       </center>
     </div>
   </section>
 
-  <script>
-    const uploadInput = document.getElementById("upload-img");
-    const imageDisplay = document.getElementById("image-display");
-    const facesCount = document.getElementById("faces-count");
-    const loadingText = document.getElementById("loading-text");
-
-    // Load only the tinyFaceDetector model (memory-friendly)
-    Promise.all([
-      faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
-    ]).then(() => {
-      loadingText.textContent = "Model Loaded. Upload an image.";
-    });
-
-    uploadInput.addEventListener("change", async () => {
-      if (!uploadInput.files.length) return;
-
-      // Clear previous content
-      imageDisplay.innerHTML = '';
-      facesCount.textContent = '';
-
-      const file = uploadInput.files[0];
-      const img = await faceapi.bufferToImage(file);
-
-      // Resize image to 320x320 for lower memory usage
-      const canvasWrapper = document.createElement('div');
-      canvasWrapper.style.position = "relative";
-      canvasWrapper.style.width = "320px";
-      canvasWrapper.style.height = "320px";
-      canvasWrapper.style.overflow = "hidden";
-
-      img.style.width = "100%";
-      img.style.height = "100%";
-      img.style.objectFit = "contain";
-
-      canvasWrapper.appendChild(img);
-      imageDisplay.appendChild(canvasWrapper);
-
-      const displaySize = { width: 320, height: 320 };
-      const detections = await faceapi
-        .detectAllFaces(img, new faceapi.TinyFaceDetectorOptions())
-        .withFaceLandmarks()
-        .withFaceExpressions();
-
-      const canvas = faceapi.createCanvasFromMedia(img);
-      faceapi.matchDimensions(canvas, displaySize);
-
-      const resizedDetections = faceapi.resizeResults(detections, displaySize);
-      faceapi.draw.drawDetections(canvas, resizedDetections);
-
-      canvasWrapper.appendChild(canvas);
-      facesCount.textContent = `Faces Detected: ${resizedDetections.length}`;
-    });
-  </script>
-
+  <script src="main.js"></script>
   <style>
     .image-display {
       position: relative;
-      width: 320px;
-      height: 320px;
+      width: 450px;
+      height: 450px;
       border: 0.3rem solid #e91e625e;
       margin-bottom: 20px;
       border-radius: 10px;
     }
 
     canvas {
+      width: 100%;
+      height: 100%;
       position: absolute;
-      top: 0;
+      top: 0%;
       left: 0;
     }
 
