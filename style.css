@@ -5,11 +5,10 @@
 	font-family: sans-serif;
 	-webkit-user-drag: element;
 	user-select: none;
+	 overflow: hidden !important;
 }
 
-body, html {
-  overflow: hidden;
-}
+
 
 .sec {
 	position: relative;
