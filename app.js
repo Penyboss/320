@@ -83,7 +83,7 @@ async function loadModels() {
 // FUNCTION THAT LOADS THE TEST IMAGES
 function loadTestImages() {
 	// get the folder name of the test images
-	const imageLabels = ['farouq', 'tobi'];
+	const imageLabels = ['farouq', 'qudus'];
 
 	return Promise.all(
 		imageLabels.map(async (eachImageLabel) => {
