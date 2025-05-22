@@ -1,111 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<script defer src="./face-api.min.js"></script>
-		<script defer src="./app.js"></script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script defer src="./face-api.min.js"></script>
+  <script defer src="./app.js"></script>
 
-		<link rel="stylesheet" href="box/css/boxicons.css" />
-		<link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="box/css/boxicons.css" />
+  <link rel="stylesheet" href="style.css" />
 
-		<title>Face Recognition System</title>
+  <title>Face Recognition System</title>
 
-		<style>
-			html, body {
-				height: 100% !important;
-				margin: 0 !important;
-				padding: 0 !important;
-				box-sizing: border-box !important;
-				display: flex !important;
-				justify-content: center !important;
-				align-items: center !important;
-				font-family: sans-serif !important;
-				background-color: #f9f9f9 !important;
-			}
-			body {
-				flex-direction: column !important;
-				text-align: center !important;
-			}
-			.image-display {
-				position: relative;
-				width: 450px;
-				height: 450px;
-				border: 0.3rem solid #e91e625e;
-				margin-bottom: 20px;
-				border-radius: 10px;
-			}
-			canvas {
-				width: 100%;
-				height: 100%;
-				position: absolute;
-				top: 0%;
-				left: 0;
-			}
-			img {
-				width: 100%;
-				height: 100%;
-				object-fit: contain;
-			}
-			video {
-				width: 100%;
-				height: 100%;
-				object-fit: cover;
-				border-radius: 10px;
-			}
-		</style>
-	</head>
-	<body>
-		<section class="sec">
-			<div class="toggle">
-				<i class="bx bx-moon"></i>
-				<i class="bx bx-sun"></i>
-			</div>
+  <style>
+    html, body {
+      height: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      box-sizing: border-box !important;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      font-family: sans-serif !important;
+      background-color: #f9f9f9 !important;
+    }
 
-			<div class="box">
-				<h2>Smart Facial Recognition System</h2>
-				<center>
-					<div class="image-display" id="display">
-						<video id="video" autoplay playsinline></video>
-						<canvas id="canvas" hidden></canvas>
-					</div>
-					<button id="capture">Capture Image</button>
-					<br><br>
-					<input type="file" id="upload-img" />
-					<div class="msg">
-						<p>Loading Model......</p>
-						<p class="faces"></p>
-					</div>
-				</center>
-			</div>
-		</section>
+    body {
+      flex-direction: column !important;
+      text-align: center !important;
+    }
 
-		<script src="main.js"></script>
-		<script>
-			const video = document.getElementById('video');
-			const canvas = document.getElementById('canvas');
-			const context = canvas.getContext('2d');
-			const captureBtn = document.getElementById('capture');
+    .image-display {
+      position: relative;
+      width: 450px;
+      height: 450px;
+      border: 0.3rem solid #e91e625e;
+      margin-bottom: 20px;
+      border-radius: 10px;
+    }
 
-			navigator.mediaDevices.getUserMedia({ video: true })
-				.then(stream => {
-					video.srcObject = stream;
-				})
-				.catch(err => {
-					console.error("Camera access denied:", err);
-				});
+    canvas {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0%;
+      left: 0;
+    }
 
-			captureBtn.addEventListener('click', () => {
-				canvas.width = video.videoWidth;
-				canvas.height = video.videoHeight;
-				context.drawImage(video, 0, 0, canvas.width, canvas.height);
-				canvas.hidden = false;
-				video.style.display = 'none';
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
 
-				// Convert to JPG and do something with it
-				const dataURL = canvas.toDataURL('image/jpeg');
-				console.log(dataURL); // You can send this to your server or process it
-			});
-		</script>
-	</body>
+    #camera-stream, #capture-btn {
+      display: none;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <section class="sec">
+    <div class="toggle">
+      <i class="bx bx-moon"></i>
+      <i class="bx bx-sun"></i>
+    </div>
+
+    <div class="box">
+      <h2>Smart Facial Recognition System</h2>
+      <center>
+        <div class="image-display" id="image-container"></div>
+        <input type="file" id="upload-img" />
+        <br />
+        <button onclick="startCamera()">Use Camera</button>
+        <video id="camera-stream" autoplay></video>
+        <button id="capture-btn" onclick="captureImage()">Capture Image</button>
+        <div class="msg">
+          <p>Loading Model......</p>
+          <p class="faces"></p>
+        </div>
+      </center>
+    </div>
+  </section>
+
+  <script>
+    const video = document.getElementById('camera-stream');
+    const captureBtn = document.getElementById('capture-btn');
+    const imageContainer = document.getElementById('image-container');
+    const uploadInput = document.getElementById('upload-img');
+
+    function startCamera() {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          video.srcObject = stream;
+          video.style.display = 'block';
+          captureBtn.style.display = 'inline-block';
+        })
+        .catch(err => {
+          alert('Camera access denied or unavailable');
+          console.error(err);
+        });
+    }
+
+    function captureImage() {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/jpeg');
+
+      // Display the captured image
+      imageContainer.innerHTML = `<img src="${dataUrl}" />`;
+
+      // Convert to blob and simulate file input change
+      fetch(dataUrl)
+        .then(res => res.blob())
+        .then(blob => {
+          const file = new File([blob], 'captured.jpg', { type: 'image/jpeg' });
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(file);
+          uploadInput.files = dataTransfer.files;
+
+          // Optional: trigger change event
+          uploadInput.dispatchEvent(new Event('change'));
+        });
+
+      // Stop camera
+      const stream = video.srcObject;
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      video.style.display = 'none';
+      captureBtn.style.display = 'none';
+    }
+  </script>
+
+  <script src="main.js"></script>
+</body>
 </html>
